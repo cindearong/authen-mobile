@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+.expo/
+dist/
+web-build/
+
+# Android build artifacts
+android/build/
+android/.gradle/
+android/app/build/
+local.properties
+*.jks
+*.p8
+*.p12
+*.key
+
+# iOS build artifacts
+ios/build/
+*.mode1v3
+*.pbxuser
+!default.mode1v3
+
+# OSX
+.DS_Store
+
+# Secrets (Important for your Google/Firebase work)
+.env
+google-services.json
