@@ -2,8 +2,11 @@ import axios from 'axios';
 
 const BACKEND_URL = 'https://expenses-tracker-api-laravel.benova.com.my/api';
 
-const api = axios.create({
+export const api = axios.create({
   baseURL: BACKEND_URL,
+  headers: {
+    Accept: 'application/json',
+  },
 });
 
 export function setAuthToken(token){
@@ -12,7 +15,7 @@ export function setAuthToken(token){
 
 export async function fetchExpenses() {
   const response = await api.get('/expenses');
-  return response.data.data || response.data || [];
+  return response.data.data || response.data;
 }
 
 export async function storeExpense(expenseData) {
@@ -23,7 +26,14 @@ export async function storeExpense(expenseData) {
     category: 'General',    
     description: expenseData.description
   });
-  return response.data;
+  
+  const data = response.data.data || response.data;
+
+  if (Array.isArray(data)) {
+    return data[0];
+  }
+  
+  return data;
 }
 
 export function updateExpense(id, expenseData) {

@@ -1,24 +1,20 @@
-export const Colors = {
-  primary100: '#f9beda',
-  primary500: '#c30b64',
-  primary800: '#610440',
-  error100: '#fcdcbf',
-  error500: '#f37c13',
-}
+import { Colors as C } from './colors';
+
+export const Colors = C;
 
 export const GlobalStyles = {
   colors: {
-    primary50: '#e4d9fd',
-    primary100: '#c6affc',
-    primary200: '#a281f0',
-    primary400: '#5721d4',
-    primary500: '#3e04c3',
-    primary700: '#2d0689',
-    primary800: '#200364',
-    accent500: '#f7bc0c',
-    error50: '#fcc4e4',
-    error500: '#9b095c',
-    gray500: '#39324a',
-    gray700: '#221c30',
+    primary50: C.primary50,
+    primary100: C.primary100,
+    primary200: C.primary100,
+    primary400: C.primary400,
+    primary500: C.primary500,
+    primary700: C.primary50,
+    primary800: C.primary500,
+    accent500: C.accent500,
+    error50: '#fef2f2',
+    error500: C.error500,
+    gray500: '#64748b',
+    gray700: '#1e293b',
   },
 };

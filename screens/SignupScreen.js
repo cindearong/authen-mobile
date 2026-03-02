@@ -11,24 +11,35 @@ function SignupScreen() {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const authCtx = useContext(AuthContext);
 
-  async function signupHandler({ email, password }) {
+  async function signupHandler(credentials) {
+    const { email, password, name, confirmPassword } = credentials;
+
+    console.log("Checking Screen variables:", { password, confirmPassword });
+
     setIsAuthenticating(true);
     try {
-      const token = await createUser(email, password);
+      const token = await createUser(email, password, name, confirmPassword);
       
-      // 🚀 SET AXIOS HEADER BEFORE AUTHENTICATING
-      setAuthToken(token); 
-      
+      setAuthToken(token);
       authCtx.authenticate(token);
     } catch (error) {
-      // 💡 Log the exact backend error for debugging
-      console.log("Signup Error Data:", error.response?.data);
-      
-      Alert.alert(
-        'Authentication failed',
-        error.response?.data?.message || 'Could not create user, please check your input.'
-      );
       setIsAuthenticating(false);
+      let errorMsg = 'Could not create user. Please try again later.';
+
+      if (error.response?.data) {
+        const data = error.response.data;
+        if (data.errors) {
+          const errorKey = Object.keys(data.errors)[0];
+          if (errorKey) {
+            errorMsg = data.errors[errorKey][0];
+          }
+        } else if (data.message) {
+          errorMsg = data.message;
+        }
+      }
+
+      console.log("Full Error Object:", error);
+      Alert.alert('Authentication failed', errorMsg);
     }
   }
 

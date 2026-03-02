@@ -2,7 +2,6 @@ import { View, Text, StyleSheet } from "react-native";
 import { GlobalStyles } from "../constants/styles";
 
 function ExpensesSummary({ expenses, periodName }) {
-  // 💡 Add "?? []" here. This ensures .reduce never runs on 'undefined'.
   const safeExpenses = expenses ?? [];
 
   const expenseSum = safeExpenses.reduce((sum, expense) => {
@@ -13,7 +12,6 @@ function ExpensesSummary({ expenses, periodName }) {
   return (
     <View style={styles.container}>
       <Text style={styles.period}>{periodName}</Text>
-      {/* RM for Malaysia as per your context! */}
       <Text style={styles.sum}>RM{expenseSum.toFixed(2)}</Text>
     </View>
   );
@@ -23,24 +21,24 @@ export default ExpensesSummary;
 
 const styles = StyleSheet.create({
   container: {
-    padding: 8,
-    backgroundColor: GlobalStyles.colors.primary50,
-    borderRadius: 6,
+    padding: 20,
+    backgroundColor: GlobalStyles.colors.primary500,
+    borderRadius: 15,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 16,
+    elevation: 8,
   },
-
   period: {
-    fontSize: 12,
-    color: GlobalStyles.colors.primary400,
+    fontSize: 14,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    color: 'rgba(255, 255, 255, 0.8)',
   },
-
   sum: {
-    fontSize: 16,
+    fontSize: 22,
     fontWeight: 'bold',
-    color: GlobalStyles.colors.primary500,
-  }
-
+    color: 'white',
+  },
 });
-

@@ -1,50 +1,70 @@
 {
   "expo": {
-    "name": "RNCourse",
-    "slug": "RNCourse",
-    "scheme": "rn-course-auth",
+    "name": "Expenses & Places Pro",
+    "slug": "notif-mobile",
     "version": "1.0.0",
+    "scheme": "notifmobile",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
-    "updates": {
-      "fallbackToCacheTimeout": 0
-    },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "icon": "./assets/icon.png", 
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.authen.mobile"
+      "bundleIdentifier": "com.cindearong.notifmobile",
+      "supportsTablet": true
     },
     "android": {
-      "package": "com.authen.mobile",
-      "googleServicesFile": "./google-services.json",
+      "package": "com.cindearong.notifmobile",
+      //"googleServicesFile": "./google-services.json",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyAipxg8qHxTFQ-FIY_vcHUI66cSE8FLMeg"
+        }
+      },
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FFFFFF"
+        "backgroundColor": "#E6F4FE"
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
-    },
-    "extra": {
-      "eas": {
-        "projectId": "0608b109-54b9-4a6e-93ca-cdd1cee5e809"
-      }
-    },
+        "output": "single",
+        "favicon": "./assets/favicon.png"
+      },
     "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "The app needs access to your camera to take photos of places."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysPermission": "Allow this app to use your location to save your favorite spots.",
+          "isAndroidBackgroundLocationEnabled": false
+        }
+      ],
+      "expo-sqlite",
+      "@react-native-community/datetimepicker",
       [
         "@react-native-google-signin/google-signin",
         {
           "iosUrlScheme": "com.googleusercontent.apps.1062013777281-p9rb00oovj1grd68c27pfluot4hi8eqs"
         }
-      ],
-      "@react-native-community/datetimepicker"
-    ]
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "0608b109-54b9-4a6e-93ca-cdd1cee5e809"
+      }
+    }
   }
 }

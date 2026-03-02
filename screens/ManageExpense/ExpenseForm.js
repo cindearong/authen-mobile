@@ -5,7 +5,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import Input from './Input';
 import Button from '../../components/ui/Button';
 import { getFormattedDate } from '../../util/date';
-import { GlobalStyles } from '../../constants/styles';
+import { Colors } from '../../constants/styles';
 
 function ExpenseForm({ submitButtonLabel, onCancel, onSubmit, defaultValues }) {
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -145,31 +145,45 @@ function ExpenseForm({ submitButtonLabel, onCancel, onSubmit, defaultValues }) {
 export default ExpenseForm;
 
 const styles = StyleSheet.create({
-  form: { marginTop: 40 },
+  form: { 
+    marginTop: 20,
+    backgroundColor: Colors.primary950,
+    padding: 16,
+    borderRadius: 20,
+    elevation: 4,
+    shadowColor: 'black',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: 'white',
-    marginVertical: 24,
+    color: Colors.primary500,
+    marginTop: 20,
+    marginBottom: 20,
     textAlign: 'center',
   },
   inputsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  rowInput: { flex: 1 },
-  errorText: {
-    textAlign: 'center',
-    color: GlobalStyles.colors.error500,
-    margin: 8,
+  rowInput: { 
+    flex: 1 
   },
   buttons: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    marginTop: 16,
   },
   button: {
-    minWidth: 120,
-    marginHorizontal: 8,
+    flex: 1,
+    marginHorizontal: 4,
+  },
+  errorText: {
+    textAlign: 'center',
+    color: Colors.error500,
+    margin: 8,
   },
 });

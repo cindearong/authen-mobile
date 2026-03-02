@@ -1,5 +1,5 @@
 import { View, Text, TextInput, StyleSheet } from 'react-native';
-
+import { GlobalStyles } from '../../constants/styles';
 import { Colors } from '../../constants/styles';
 
 function Input({
@@ -9,6 +9,7 @@ function Input({
   onUpdateValue,
   value,
   isInvalid,
+  style,
 }) {
   return (
     <View style={styles.inputContainer}>
@@ -16,12 +17,14 @@ function Input({
         {label}
       </Text>
       <TextInput
-        style={[styles.input, isInvalid && styles.inputInvalid]}
+        style={[styles.input, isInvalid && styles.inputInvalid, style]}
         autoCapitalize="none"
         keyboardType={keyboardType}
         secureTextEntry={secure}
         onChangeText={onUpdateValue}
         value={value}
+        autoCorrect={false}
+        spellCheck={false}
       />
     </View>
   );
@@ -30,24 +33,33 @@ function Input({
 export default Input;
 
 const styles = StyleSheet.create({
-  inputContainer: {
-    marginVertical: 8,
-  },
-  label: {
-    color: 'white',
-    marginBottom: 4,
-  },
-  labelInvalid: {
-    color: Colors.error500,
-  },
-  input: {
-    paddingVertical: 8,
-    paddingHorizontal: 6,
-    backgroundColor: Colors.primary100,
-    borderRadius: 4,
-    fontSize: 16,
-  },
-  inputInvalid: {
-    backgroundColor: Colors.error100,
-  },
+    inputContainer: {
+        marginHorizontal: 4,
+        marginVertical: 10,
+    },
+    label: {
+        fontSize: 13,
+        color: GlobalStyles.colors.gray700,
+        marginBottom: 6,
+        fontWeight: '600',
+        textTransform: 'uppercase',
+    },  
+    input: {
+        backgroundColor: GlobalStyles.colors.primary100,
+        color: GlobalStyles.colors.gray700,
+        padding: 12,
+        borderRadius: 8,
+        fontSize: 16,
+        borderWidth: 1,
+        borderColor: GlobalStyles.colors.primary200,
+    },
+    inputMultiline: {
+        minHeight: 120,
+        textAlignVertical: 'top'
+    },
+    invalidInput: {
+        backgroundColor: GlobalStyles.colors.error50,
+        borderWidth: 1,
+        borderColor: GlobalStyles.colors.error500,
+    },
 });

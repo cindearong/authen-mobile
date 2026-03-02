@@ -11,9 +11,13 @@ export const ExpensesContext = createContext({
 function expensesReducer(state, action) {
     switch (action.type) {
         case 'ADD':
-            return [action.payload, ...state];
+            const newExpense = action.payload;
+            return [{ 
+                ...newExpense, 
+                amount: +newExpense.amount, 
+                date: new Date(newExpense.date) 
+            }, ...state];
         case 'SET':
-            // Ensure payload is an array before mapping
             const dataToProcess = Array.isArray(action.payload) ? action.payload : [];
             
             const cleanedData = dataToProcess.map(exp => ({
@@ -26,7 +30,12 @@ function expensesReducer(state, action) {
             const updatableExpenseIndex = state.findIndex(
                 (expense) => expense.id === action.payload.id);
                 const updatableExpense = state[updatableExpenseIndex];
-                const updatedItem = {...updatableExpense,...action.payload.expenseData,};
+                const updatedItem = {
+                    ...updatableExpense,
+                    ...action.payload.expenseData,
+                    amount: +action.payload.expenseData.amount,
+                    date: new Date(action.payload.expenseData.date)
+                };
                 const updatedExpenses = [...state];
                 updatedExpenses[updatableExpenseIndex] = updatedItem;
                 return updatedExpenses;
@@ -69,4 +78,3 @@ function ExpensesContextProvider({children}){
 }
 
 export default ExpensesContextProvider;
-

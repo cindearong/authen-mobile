@@ -1,29 +1,32 @@
 import { useState } from 'react';
-import { StyleSheet, View, Alert} from 'react-native';
+import { StyleSheet, View, Alert, Pressable } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
+import { Colors } from '../../constants/styles';
 import Button from '../ui/Button';
 import Input from './Input';
 
 function AuthForm({ isLogin, onSubmit, credentialsInvalid }) {
   const [enteredEmail, setEnteredEmail] = useState('');
-  const [enteredConfirmEmail, setEnteredConfirmEmail] = useState('');
   const [enteredPassword, setEnteredPassword] = useState('');
   const [enteredConfirmPassword, setEnteredConfirmPassword] = useState('');
-
+  const [enteredName, setEnteredName] = useState('');
+  const [passwordIsVisible, setPasswordIsVisible] = useState(false);
+  const [confirmPasswordIsVisible, setConfirmPasswordIsVisible] = useState(false);
+ 
   const {
     email: emailIsInvalid,
-    confirmEmail: emailsDontMatch,
     password: passwordIsInvalid,
     confirmPassword: passwordsDontMatch,
   } = credentialsInvalid || {};
 
   function updateInputValueHandler(inputType, enteredValue) {
     switch (inputType) {
+      case 'name':
+        setEnteredName(enteredValue);
+        break;
       case 'email':
         setEnteredEmail(enteredValue);
-        break;
-      case 'confirmEmail':
-        setEnteredConfirmEmail(enteredValue);
         break;
       case 'password':
         setEnteredPassword(enteredValue);
@@ -34,43 +37,45 @@ function AuthForm({ isLogin, onSubmit, credentialsInvalid }) {
     }
   }
 
- function submitHandler() {
-    // 1. Get values and remove accidental whitespace
+  function submitHandler() {
     const email = enteredEmail.trim();
-    const confirmEmail = enteredConfirmEmail.trim();
     const password = enteredPassword.trim();
     const confirmPassword = enteredConfirmPassword.trim();
 
-    // 2. Define validation constants FIRST
-    const emailInvalid = !email.includes('@');
-    const passwordInvalid = password.length < 6;
-    
-    // Logic: If Login mode, we don't care about the second field (always true).
-    // If Signup mode, they MUST match.
-    const emailsAreEqual = isLogin || email === confirmEmail;
+    const emailIsValid = email.includes('@');
+    const passwordIsValid = password.length >= 8;
     const passwordsAreEqual = isLogin || password === confirmPassword;
 
-    // 3. Now check them in the IF statement
-    if (
-      emailInvalid ||
-      passwordInvalid ||
-      (!isLogin && (!emailsAreEqual || !passwordsAreEqual))
-    ) {
-      Alert.alert('Invalid input', 'Please check your entered credentials.');
+    if (!emailIsValid) {
+      Alert.alert('Invalid Input', 'Please enter a valid email address.');
+      return;
+    }
+    if (!passwordIsValid) {
+      Alert.alert('Invalid Input', 'Password must be at least 8 characters long.');
+      return;
+    }
+    if (!isLogin && !passwordsAreEqual) {
+      Alert.alert('Invalid Input', 'Passwords do not match.');
       return;
     }
 
-   // util/AuthForm.js inside submitHandler
     onSubmit({
-      email: email,
-      confirmEmail: confirmEmail,
-      password: password,
-      confirmPassword: confirmPassword,
+      email,
+      password,
+      confirmPassword,
+      name: isLogin ? '' : enteredName,
     });
   }
 
   return (
     <View style={styles.form}>
+      {!isLogin && (
+        <Input
+          label="Full Name"
+          onUpdateValue={(val) => setEnteredName(val)}
+          value={enteredName}
+          isInvalid={false}
+        /> )}
       <View>
         <Input
           label="Email Address"
@@ -79,33 +84,42 @@ function AuthForm({ isLogin, onSubmit, credentialsInvalid }) {
           keyboardType="email-address"
           isInvalid={emailIsInvalid}
         />
-        {!isLogin && (
+        <View style={styles.passwordContainer}>
           <Input
-            label="Confirm Email Address"
-            onUpdateValue={updateInputValueHandler.bind(this, 'confirmEmail')}
-            value={enteredConfirmEmail}
-            keyboardType="email-address"
-            isInvalid={emailsDontMatch}
+            label="Password"
+            onUpdateValue={updateInputValueHandler.bind(this, 'password')}
+            secure={!passwordIsVisible}
+            value={enteredPassword}
+            isInvalid={passwordIsInvalid}
+            style={styles.passwordInput}
           />
-        )}
-        <Input
-          label="Password"
-          onUpdateValue={updateInputValueHandler.bind(this, 'password')}
-          secure
-          value={enteredPassword}
-          isInvalid={passwordIsInvalid}
-        />
+          <Pressable
+            style={styles.eyeIcon}
+            onPress={() => setPasswordIsVisible((current) => !current)}
+          >
+            <Ionicons name={passwordIsVisible ? 'eye' : 'eye-off'} size={24} color={Colors.primary500} />
+          </Pressable>
+        </View>
         {!isLogin && (
-          <Input
-            label="Confirm Password"
-            onUpdateValue={updateInputValueHandler.bind(
-              this,
-              'confirmPassword'
-            )}
-            secure
-            value={enteredConfirmPassword}
-            isInvalid={passwordsDontMatch}
-          />
+          <View style={styles.passwordContainer}>
+            <Input
+              label="Confirm Password"
+              onUpdateValue={updateInputValueHandler.bind(
+                this,
+                'confirmPassword'
+              )}
+              secure={!confirmPasswordIsVisible}
+              value={enteredConfirmPassword}
+              isInvalid={passwordsDontMatch}
+              style={styles.passwordInput}
+            />
+            <Pressable
+              style={styles.eyeIcon}
+              onPress={() => setConfirmPasswordIsVisible((current) => !current)}
+            >
+              <Ionicons name={confirmPasswordIsVisible ? 'eye' : 'eye-off'} size={24} color={Colors.primary500} />
+            </Pressable>
+          </View>
         )}
         <View style={styles.buttons}>
           <Button onPress={submitHandler}>
@@ -122,5 +136,17 @@ export default AuthForm;
 const styles = StyleSheet.create({
   buttons: {
     marginTop: 12,
+  },
+  passwordContainer: {
+    position: 'relative',
+    justifyContent: 'center',
+  },
+  eyeIcon: {
+    position: 'absolute',
+    right: 20,
+    top: 42,
+  },
+  passwordInput: {
+    paddingRight: 50,
   },
 });

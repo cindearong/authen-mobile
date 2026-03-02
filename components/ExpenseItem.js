@@ -37,48 +37,37 @@ function ExpenseItem ({id, description, amount, date}) {
 export default ExpenseItem;
 
 const styles = StyleSheet.create({
-    pressed: {
-        opacity: 0.75,
-    },
-
-   expenseItem: {
-    padding: 12,
-    marginVertical: 8,
-    backgroundColor: GlobalStyles.colors.primary500,
+  expenseItem: {
+    padding: 16,
+    marginVertical: 10,
+    backgroundColor: GlobalStyles.colors.primary100,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderRadius: 6,
-    elevation: 3,
-    shadowColor: GlobalStyles.colors.gray500,
-    shadowRadius: 4,
-    shadowOffset: {width: 1, height: 1},
-    shadowOpacity: 0.4,
-   },
-
-   textBase: {
-    color: GlobalStyles.colors.primary50,
-    },
-
-    description: {
+    borderRadius: 12,
+    elevation: 4,
+    shadowColor: 'black',
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+  },
+  description: {
     fontSize: 16,
     marginBottom: 4,
     fontWeight: 'bold',
-    },
-
-    amountContainer: {
+    color: GlobalStyles.colors.primary800,
+  },
+  amountContainer: {
     paddingHorizontal: 12,
-    paddingVertical: 4,
-    backgroundColor: 'white',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 4,
-    minWidth: 80,
-    },
-
-    amount: {
-    fontWeight: 'bold',
+    paddingVertical: 8,
+    backgroundColor: GlobalStyles.colors.primary50,
+    borderRadius: 8,
+    minWidth: 90,
+    alignItems: 'flex-end',
+  },
+  amount: {
+    fontWeight: '900',
+    fontSize: 16,
     color: GlobalStyles.colors.primary500,
-    },
-
+  },
 });

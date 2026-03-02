@@ -1,45 +1,53 @@
 import { useContext, useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SplashScreen from 'expo-splash-screen';
+import { Ionicons } from '@expo/vector-icons';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+
+import { GlobalStyles } from './constants/styles';
+import AuthContextProvider, { AuthContext } from './store/auth-context';
+import ExpensesContextProvider from './store/expenses-context';
+
+// util
+import { setAuthToken } from './util/http';
 
 import LoginScreen from './screens/LoginScreen';
 import SignupScreen from './screens/SignupScreen';
-import WelcomeScreen from './screens/WelcomeScreen';
-import { Colors } from './constants/styles';
-import AuthContextProvider, { AuthContext } from './store/auth-context';
-import IconButton from './components/ui/IconButton';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
+
 import RecentExpenses from "./screens/RecentExpenses";
 import AllExpenses from "./screens/AllExpenses";
 import ManageExpense from "./screens/ManageExpense";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { setAuthToken } from './util/http';
-import ExpensesContextProvider from './store/expenses-context';
+
+import AllPlaces from './screens/PlaceScreens/AllPlace';
+import AddPlace from './screens/PlaceScreens/AddPlace';
+import Map from './screens/PlaceScreens/Map';
+import PlaceDetails from './screens/PlaceScreens/PlaceDetails';
+
+import IconButton from './components/ui/IconButton';
 
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
+const PlacesStack = createNativeStackNavigator();
+
 SplashScreen.preventAutoHideAsync();
 
-    GoogleSignin.configure({
-      //iosClientId:
-      //"1062013777281-p9rb00oovj1grd68c27pfluot4hi8eqs.apps.googleusercontent.com",
-      webClientId:
-      "584536588788-7l68nhr22plr14ltjltmdcnk0chqcn14.apps.googleusercontent.com",
-      profileImageSize: 120,
-      offlineAccess: true, 
-      forceCodeForRefreshToken: true,
-  });
+GoogleSignin.configure({
+  webClientId: "584536588788-7l68nhr22plr14ltjltmdcnk0chqcn14.apps.googleusercontent.com",
+  offlineAccess: true, 
+  forceCodeForRefreshToken: true,
+});
 
 function AuthStack() {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerStyle: { backgroundColor: Colors.primary500 },
+        headerStyle: { backgroundColor: GlobalStyles.colors.primary800 },
         headerTintColor: 'white',
-        contentStyle: { backgroundColor: Colors.primary100 },
+        contentStyle: { backgroundColor: GlobalStyles.colors.primary700 },
       }}
     >
       <Stack.Screen name="Login" component={LoginScreen} />
@@ -48,27 +56,100 @@ function AuthStack() {
   );
 }
 
+function PlacesNavigator() {
+  return (
+    <PlacesStack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: GlobalStyles.colors.primary800 },
+        headerTintColor: 'white',
+        contentStyle: { backgroundColor: GlobalStyles.colors.primary700 },
+      }}
+    >
+      <PlacesStack.Screen
+        name="AllPlaces"
+        component={AllPlaces}
+        options={({ navigation }) => ({
+          title: 'Favorite Places',
+          headerRight: ({ tintColor }) => (
+            <IconButton
+              icon="add"
+              size={24}
+              color={tintColor}
+              onPress={() => navigation.navigate('AddPlace')}
+            />
+          ),
+        })}
+      />
+      <PlacesStack.Screen name="AddPlace" component={AddPlace} options={{ title: 'Add New Place' }} />
+      <PlacesStack.Screen name="Map" component={Map} />
+      <PlacesStack.Screen name="PlaceDetails" component={PlaceDetails} options={{ title: 'Loading Place...' }} />
+    </PlacesStack.Navigator>
+  );
+}
+
 function ExpensesOverview() {
-  const authCtx = useContext(AuthContext); // To access logout
+  const authCtx = useContext(AuthContext);
 
   return (
-    <BottomTabs.Navigator 
-      screenOptions={({navigation}) => ({
-        headerStyle: { backgroundColor: Colors.primary500 },
+    <BottomTabs.Navigator
+      screenOptions={({ navigation }) => ({
+        headerStyle: { backgroundColor: GlobalStyles.colors.primary800 },
         headerTintColor: 'white',
-        tabBarStyle: { backgroundColor: Colors.primary500 },
-        tabBarActiveTintColor: Colors.accent500,
-        // Add Logout button on the left, Add button on the right
-        headerLeft: ({tintColor}) => (
+        tabBarStyle: {
+          backgroundColor: GlobalStyles.colors.primary800,
+          borderTopWidth: 0,
+          height: 65,
+          paddingBottom: 10,
+        },
+        tabBarActiveTintColor: GlobalStyles.colors.accent500,
+        tabBarInactiveTintColor: 'rgba(255, 255, 255, 0.4)',
+        headerLeft: ({ tintColor }) => (
           <IconButton icon="exit" size={24} color={tintColor} onPress={authCtx.logout} />
         ),
-        headerRight: ({tintColor}) => (
-          <IconButton icon="add" size={24} color={tintColor} onPress={() => navigation.navigate('ManageExpense')} />
+        headerRight: ({ tintColor }) => (
+          <IconButton
+            icon="add"
+            size={24}
+            color={tintColor}
+            onPress={() => navigation.navigate('ManageExpense')}
+          />
         ),
       })}
     >
-      <BottomTabs.Screen name="RecentExpenses" component={RecentExpenses} options={{ title: 'Recent' }} />
-      <BottomTabs.Screen name="AllExpenses" component={AllExpenses} options={{ title: 'All' }} />
+      <BottomTabs.Screen
+        name="RecentExpenses"
+        component={RecentExpenses}
+        options={{
+          title: 'Recent',
+          tabBarLabel: 'Recent',
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? "time" : "time-outline"} size={size} color={color} />
+          ),
+        }}
+      />
+      <BottomTabs.Screen
+        name="AllExpenses"
+        component={AllExpenses}
+        options={{
+          title: 'All Expenses',
+          tabBarLabel: 'All',
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? "journal" : "journal-outline"} size={size} color={color} />
+          ),
+        }}
+      />
+      <BottomTabs.Screen
+        name="PlacesTab"
+        component={PlacesNavigator}
+        options={{
+          headerShown: false,
+          title: 'Places',
+          tabBarLabel: 'Places',
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? "map" : "map-outline"} size={size} color={color} />
+          ),
+        }}
+      />
     </BottomTabs.Navigator>
   );
 }
@@ -77,49 +158,58 @@ function AuthenticatedStack() {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerStyle: { backgroundColor: Colors.primary500 },
+        headerStyle: { backgroundColor: GlobalStyles.colors.primary800 },
         headerTintColor: 'white',
-        contentStyle: { backgroundColor: Colors.primary100 },
+        contentStyle: { backgroundColor: GlobalStyles.colors.primary700 },
       }}
     >
-      <Stack.Screen name="ExpensesOverview" component={ExpensesOverview} options={{ headerShown: false }} />
-      <Stack.Screen name="ManageExpense" component={ManageExpense} options={{ presentation: 'modal' }} />
+      <Stack.Screen 
+        name="ExpensesOverview" 
+        component={ExpensesOverview} 
+        options={{ headerShown: false }} 
+      />
+      <Stack.Screen 
+        name="ManageExpense" 
+        component={ManageExpense} 
+        options={{ presentation: 'modal' }} 
+      />
     </Stack.Navigator>
   );
 }
 
 function Navigation() {
   const authCtx = useContext(AuthContext);
-
-  // Use a double bang !! to force a boolean or check for null
-  const isLoggedIn = !!authCtx.token; 
-
   return (
     <NavigationContainer>
-      {!isLoggedIn ? <AuthStack /> : <AuthenticatedStack />}
+      {!authCtx.token ? <AuthStack /> : <AuthenticatedStack />}
     </NavigationContainer>
   );
 }
 
 function Root() {
-  const [isTryingLogin, setIsTryingLogin] = useState(true);
+  const [isAppReady, setIsAppReady] = useState(false);
   const authCtx = useContext(AuthContext);
 
   useEffect(() => {
-    async function fetchToken() {
-      const storedToken = await AsyncStorage.getItem('token');
-
-      if (storedToken) {
-        authCtx.authenticate(storedToken);
-        setAuthToken(storedToken);
+    async function prepareApp() {
+      try {
+        const storedToken = await AsyncStorage.getItem('token');
+        if (storedToken) {
+          authCtx.authenticate(storedToken);
+          setAuthToken(storedToken);
+        }
+      } catch (e) {
+        console.warn("Initialization Error:", e);
+      } finally {
+        setIsAppReady(true);
+        await SplashScreen.hideAsync();
       }
-      setIsTryingLogin(false);
-      await SplashScreen.hideAsync();
     }
-    fetchToken();
-  }, [authCtx.token]);
 
-  if (isTryingLogin) return null;
+    prepareApp();
+  }, [authCtx]);
+
+  if (!isAppReady) return null;
 
   return <Navigation />;
 }
@@ -129,7 +219,7 @@ export default function App() {
     <>
       <StatusBar style="light" />
       <AuthContextProvider>
-        <ExpensesContextProvider> 
+        <ExpensesContextProvider>
           <Root />
         </ExpensesContextProvider>
       </AuthContextProvider>

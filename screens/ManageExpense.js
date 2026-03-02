@@ -7,7 +7,7 @@ import ExpenseForm from "./ManageExpense/ExpenseForm";
 import { storeExpense, updateExpense, deleteExpense} from "../util/http";
 import LoadingOverlay from "../components/ui/LoadingOverlay";
 import ErrorOverlay from "../components/ui/ErrorOverlay";
-
+import { Colors } from "../constants/styles";
 
 
 function ManageExpense({route, navigation}) {
@@ -47,10 +47,11 @@ function ManageExpense({route, navigation}) {
     setIsSubmitting(true);
     try {
       if (isEditing) {
-        expenseCtx.updateExpense(editedExpenseId, expenseData);
         await updateExpense(editedExpenseId, expenseData);
+        expenseCtx.updateExpense(editedExpenseId, expenseData);
       } else {
-        const id = await storeExpense(expenseData);
+        const newExpenseFromServer = await storeExpense(expenseData);
+        const id = newExpenseFromServer?.id || Math.random().toString();
         expenseCtx.addExpense({ ...expenseData, id: id });
       }
       navigation.goBack();
@@ -93,15 +94,15 @@ export default ManageExpense;
 
 const styles = StyleSheet.create({
   container: {
-    flex:1,
+    flex: 1,
     padding: 24,
-    backgroundColor: GlobalStyles.colors.primary800,
+    backgroundColor: Colors.primary50,
   },
   deleteContainer: {
-    marginTop: 16,
-    paddingTop: 8,
-    borderTopWidth: 2,
-    borderTopColor: GlobalStyles.colors.primary200,
+    marginTop: 24,
+    paddingTop: 16,
+    borderTopWidth: 1, 
+    borderTopColor: Colors.primary200,
     alignItems: 'center',
   },
 });

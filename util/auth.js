@@ -1,20 +1,16 @@
-import axios from "axios";
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { api, setAuthToken } from './http';
 
-const API_KEY = 'AIzaSyADZzX9jInA-DlTLUwqr05PjA452EtlVrw';
+const BACKEND_URL = 'https://expenses-tracker-api-laravel.benova.com.my/api';
 
 export async function startGoogleLogin() {
   try {
     await GoogleSignin.hasPlayServices();
-    const response = await GoogleSignin.signIn();
+    const { data } = await GoogleSignin.signIn();
     
-    const idToken = response.data.idToken;
+    if (!data?.idToken) throw new Error("No ID Token received from Google");
 
-    if (!idToken) {
-      throw new Error("No ID Token received from Google");
-    }
-
-    return await loginWithGoogle(idToken);
+    return await loginWithGoogle(data.idToken);
   } catch (error) {
     console.error("Google Sign-In Flow Error:", error);
     throw error; 
@@ -22,36 +18,41 @@ export async function startGoogleLogin() {
 }
 
 export async function loginWithGoogle(idToken) {
-  
-  console.log("Google Login Response:", idToken);
-  const response = await axios.post('https://expenses-tracker-api-laravel.benova.com.my/api/google-login', {
+  const response = await api.post(`/google-login`, {
     firebase_token: idToken,
-    
   });
-
-  const laravelToken = response.data.access_token; 
-
-  return laravelToken;
-}
-
-export async function authenticate(mode, email, password) {
-  const url = `https://identitytoolkit.googleapis.com/v1/accounts:${mode}?key=${API_KEY}`;
-
-  const response = await axios.post(url, {
-    email: email,
-    password: password,
-    returnSecureToken: true,
-  });
-
-  const token = response.data.idToken;
-
+  
+  const token = response.data.access_token;
+  setAuthToken(token);
   return token;
 }
 
-export function createUser(email, password) {
-  return authenticate('signUp', email, password);
+export async function authenticate(mode, email, password, name, confirmPassword) {
+  const endpoint = mode === 'signUp' ? '/register' : '/login';
+  
+  const payload = {
+    name: name || email.split('@')[0],
+    email: email,
+    password: password,
+    password_confirmation: confirmPassword, 
+    device_name: 'mobile_app'
+  };
+
+  try {
+    const response = await api.post(endpoint, payload);
+    const token = response.data.access_token;
+    setAuthToken(token);
+    return token;
+  } catch (error) {
+    console.log("Laravel Auth Error:", error.response?.data || error.message);
+    throw error;
+  }
+}
+
+export function createUser(email, password, name, confirmPassword) {
+  return authenticate('signUp', email, password, name, confirmPassword);
 }
 
 export function login(email, password) {
-  return authenticate('signInWithPassword', email, password);
+  return authenticate('login', email, password);
 }

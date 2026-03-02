@@ -4,14 +4,14 @@ import { Alert } from 'react-native';
 import AuthContent from '../components/Auth/AuthContent';
 import LoadingOverlay from '../components/ui/LoadingOverlay';
 import { AuthContext } from '../store/auth-context';
-import { login, loginWithGoogle, startGoogleLogin } from '../util/auth';
+import { login, loginWithGoogle } from '../util/auth';
+import { setAuthToken } from '../util/http';
 import { 
   GoogleSignin,
   isSuccessResponse,
   isErrorWithCode,
   statusCodes 
 } from '@react-native-google-signin/google-signin';
- import { useNavigation } from '@react-navigation/native';
 
 function LoginScreen() {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
@@ -22,14 +22,28 @@ function LoginScreen() {
     setIsAuthenticating(true);
     try {
       const token = await login(email, password);
+      setAuthToken(token);
       authCtx.authenticate(token);
     } catch (error) {
-      Alert.alert('Authentication failed!', 'Check your credentials.');
+      let message = 'Authentication failed! Could not log you in.';
+
+      if (error.response?.data) {
+        const data = error.response.data;
+        if (data.errors) {
+          const errorKey = Object.keys(data.errors)[0];
+          if (errorKey) {
+            message = data.errors[errorKey][0];
+          }
+        } else if (data.message) {
+          message = data.message;
+        }
+      }
+
+      Alert.alert('Authentication failed', message);
       setIsAuthenticating(false);
     }
   }
 
-  // Google Sign-In Handler
   const handleGoogleSignIn = async () => {
     try {
       setIsAuthenticating(true);
@@ -38,19 +52,15 @@ function LoginScreen() {
 
       if (isSuccessResponse(response)) {
         const { idToken } = response.data;
-        
-        // Pass the Google token to your Firebase REST API utility
         const firebaseToken = await loginWithGoogle(idToken);
+        setAuthToken(firebaseToken);
         
         authCtx.authenticate(firebaseToken);
-        // We don't need to set isAuthenticating(false) here because 
-        // the AuthContext will switch the screen automatically.
       } else {
-        // Sign in was cancelled by user
         setIsAuthenticating(false);
       }
     } catch (error) {
-      setIsAuthenticating(false); // Unstick the UI
+      setIsAuthenticating(false);
 
       if (isErrorWithCode(error)) {
         switch (error.code) {
@@ -64,7 +74,6 @@ function LoginScreen() {
             Alert.alert('Error', 'Play services not available.');
             break;
           default:
-            // This is where DEVELOPER_ERROR usually lands
             Alert.alert('Google Error', `Code: ${error.code}\nMessage: ${error.message}`);
         }
       } else {
@@ -81,7 +90,6 @@ function LoginScreen() {
     <AuthContent 
       isLogin 
       onAuthenticate={loginHandler} 
-      // Make sure this prop name matches what you use inside AuthContent.js
       onGoogleLogin={handleGoogleSignIn} 
     />
   );

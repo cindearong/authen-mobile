@@ -34,14 +34,12 @@ function RecentExpenses() {
     return <LoadingOverlay/>;
     }
 
-  // 1. Ensure expenses is at least an empty array so .filter doesn't crash
 const allExpenses = expensesCtx.expenses ?? [];
 
 const recentExpenses = allExpenses.filter((expense) => {
   const today = new Date();
   const date7DaysAgo = getDateMinusdays(today, 7);
 
-  // 2. Add a check to make sure expense.date exists before comparing
   return expense.date && (expense.date >= date7DaysAgo) && (expense.date <= today);
 });
 
