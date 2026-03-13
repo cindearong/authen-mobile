@@ -16,22 +16,29 @@ function LocationPicker({ onPickLocation, onPickMap }) {
   const [locationPermissionInformation, requestPermission] = useForegroundPermissions();
 
   useEffect(() => {
-      async function handleMapLocation() {
-        if (isFocused && route.params?.pickedLat) {
-          const lat = route.params.pickedLat;
-          const lng = route.params.pickedLng;
-          
-          const address = await getAddress(lat, lng);
-          const mapPickedLocation = { lat, lng, address };
-          
-          setPickedLocation(mapPickedLocation);
-          onPickLocation(mapPickedLocation);
+  async function handleMapLocation() {
+    // run if we have valid coordinates in the route params
+    if (isFocused && route.params?.pickedLat && route.params?.pickedLng) {
+      const lat = route.params.pickedLat;
+      const lng = route.params.pickedLng;
 
-          navigation.setParams({ ...route.params, pickedLat: undefined, pickedLng: undefined });
-        }
+      try {
+        const address = await getAddress(lat, lng);
+        const mapPickedLocation = { lat, lng, address };
+
+        setPickedLocation(mapPickedLocation);
+        onPickLocation(mapPickedLocation);
+        
+        // navigation.setParams({ pickedLat: undefined, pickedLng: undefined });
+      } catch (error) {
+        Alert.alert('Address Error', 'Could not fetch address for this location.');
       }
-      handleMapLocation();
-    }, [route.params?.pickedLat, route.params?.pickedLng, isFocused, onPickLocation, navigation]);
+    }
+  }
+
+  handleMapLocation();
+  // only depend on the coordinates and the focus state
+}, [route.params?.pickedLat, route.params?.pickedLng, isFocused, onPickLocation]);
 
   async function getLocationHandler() {
     const hasPermission = await verifyPermissions();
@@ -73,13 +80,15 @@ function LocationPicker({ onPickLocation, onPickMap }) {
     <View>
       <View style={styles.mapPreview}>
         {pickedLocation ? (
-          <Image
-            style={styles.image}
-            source={{ uri: getMapPreview(pickedLocation.lat, pickedLocation.lng) }}
-          />
-        ) : (
-          <Text>No location picked yet.</Text>
-        )}
+            <Image
+              style={styles.image}
+              source={{ uri: getMapPreview(pickedLocation.lat, pickedLocation.lng) }}
+              onLoadStart={() => console.log("Fetching Map from:", getMapPreview(pickedLocation.lat, pickedLocation.lng))}
+              onError={(e) => console.log("Image Load Error Details:", e.nativeEvent.error)}
+            />
+          ) : (
+            <Text>No location picked yet.</Text>
+          )}
       </View>
       <View style={styles.actions}>
         <OutlinedButton icon="location" onPress={getLocationHandler}>Locate User</OutlinedButton>
