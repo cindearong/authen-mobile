@@ -28,6 +28,8 @@ import Map from './screens/PlaceScreens/Map';
 import PlaceDetails from './screens/PlaceScreens/PlaceDetails';
 
 import IconButton from './components/ui/IconButton';
+import ExpenseDetails from './screens/ManageExpense/ExpenseDetails';
+
 
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
@@ -172,6 +174,13 @@ function AuthenticatedStack() {
         name="ManageExpense" 
         component={ManageExpense} 
         options={{ presentation: 'modal' }} 
+      />
+      <Stack.Screen 
+        name="ExpenseDetails" 
+        component={ExpenseDetails} 
+        options={{
+          title: 'Expense Details',
+        }} 
       />
     </Stack.Navigator>
   );

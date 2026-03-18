@@ -8,11 +8,11 @@
     "icon": "./assets/icon.png", 
     "userInterfaceStyle": "automatic",
     "ios": {
-      "bundleIdentifier": "com.cindearong.notifmobile",
+      "bundleIdentifier": "com.authen.mobile",
       "supportsTablet": true
     },
     "android": {
-      "package": "com.cindearong.notifmobile",
+      "package": "com.authen.mobile",
       //"googleServicesFile": "./google-services.json",
       "config": {
         "googleMaps": {
@@ -30,6 +30,7 @@
         "favicon": "./assets/favicon.png"
       },
     "plugins": [
+      "expo-document-picker",
       [
         "expo-splash-screen",
         {

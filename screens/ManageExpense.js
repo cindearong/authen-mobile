@@ -1,4 +1,4 @@
-import { Alert, View, StyleSheet, TextInput } from "react-native";
+import { Alert, View, StyleSheet } from "react-native";
 import IconButton from "../components/ui/IconButton";
 import { GlobalStyles } from "../constants/styles";
 import { useContext, useLayoutEffect, useState} from "react";
@@ -21,73 +21,108 @@ function ManageExpense({route, navigation}) {
 
 
   useLayoutEffect(() => {
-    navigation.setOptions({
-      title: isEditing ? 'Edit Expense' : 'Add Expense',
-  });
+  navigation.setOptions({
+   title: isEditing ? 'Edit Expense' : 'Add Expense',
+ });
 }, [navigation, isEditing]);
 
-  async function deleteExpenseHandler() {
-    setIsSubmitting(true);
+ async function deleteExpenseHandler() {
+  setIsSubmitting(true);
+  try {
+   await deleteExpense(editedExpenseId);
+   navigation.pop(2); 
+   
+   expenseCtx.deleteExpense(editedExpenseId);
+  } catch {
+   setError('Could not delete expense - please try again later!');
+   setIsSubmitting(false);
+  }
+ }
+
+ function cancelHandler() {
+  navigation.goBack();
+ }
+
+      async function confirmHandler(expenseData) {
+      setIsSubmitting(true);
       try {
-      await deleteExpense(editedExpenseId);
-      //setIsSubmitting(false);
-      expenseCtx.deleteExpense(editedExpenseId);
-      navigation.goBack();
-    }catch {
-      setError('Could not delete expense - please try again later!');
-      setIsSubmitting(false);
-    }
-  }
+        const apiData = {
+          ...expenseData,
+          attachment: expenseData.file ? expenseData.file : (selectedExpense?.attachment || null)
+        };
 
-  function cancelHandler() {
-    navigation.goBack();
-  }
+        if (isEditing) {
+          const responseData = await updateExpense(editedExpenseId, apiData);
+          const serverUrl = responseData.attachment_url || responseData.data?.attachment_url;
+          
+          const contextUpdateData = {
+            ...expenseData,
+            id: editedExpenseId,
+            date: new Date(expenseData.date), 
+            attachment: serverUrl || (expenseData.file ? expenseData.file.uri : selectedExpense.attachment)
+          };
 
-    async function confirmHandler(expenseData) {
-    setIsSubmitting(true);
-    try {
-      if (isEditing) {
-        await updateExpense(editedExpenseId, expenseData);
-        expenseCtx.updateExpense(editedExpenseId, expenseData);
-      } else {
-        const newExpenseFromServer = await storeExpense(expenseData);
-        const id = newExpenseFromServer?.id || Math.random().toString();
-        expenseCtx.addExpense({ ...expenseData, id: id });
+          expenseCtx.updateExpense(editedExpenseId, contextUpdateData);
+        } else {
+          const responseData = await storeExpense(apiData);
+          const serverAttachmentUrl = responseData.attachment_url || responseData.data?.attachment_url;
+          const serverId = responseData.id || responseData.data?.id || Date.now().toString();
+
+          expenseCtx.addExpense({
+            ...expenseData,
+            id: serverId,
+            date: new Date(expenseData.date), //date an obj
+            attachment: serverAttachmentUrl || (expenseData.file ? expenseData.file.uri : null),
+          });
+        }
+        navigation.goBack();
+      } catch (error) {
+        setIsSubmitting(false);
+  
+        if (error.response && error.response.status === 422) {
+          const serverErrors = error.response.data.errors;
+          let errorMessage = "Validation Failed:\n";
+          
+          for (const key in serverErrors) {
+            errorMessage += `- ${serverErrors[key].join(', ')}\n`;
+          }
+          
+          console.log("Validation Details:", serverErrors);
+          Alert.alert("Input Error", errorMessage);
+        } else {
+          console.error("Update Error:", error);
+          setError('Could not save data - please check your connection.');
+        }
       }
-      navigation.goBack();
-    } catch (error) {
-      setError('Could not save data - please try again later!');
-      setIsSubmitting(false);
     }
+
+  if (error && !isSubmitting) {
+   return <ErrorOverlay message={error}/>
   }
 
-    if (error && !isSubmitting) {
-      return <ErrorOverlay message={error}/>
-    }
+  if (isSubmitting) {
+   return <LoadingOverlay/>
+  }
 
-    if (isSubmitting) {
-      return <LoadingOverlay/>
-    }
-
-  return ( 
-  <View style={styles.container}>
-    <ExpenseForm 
-    submitButtonLabel={isEditing ? 'Update' : 'Add'} 
-    onSubmit={confirmHandler}
-    onCancel={cancelHandler}
-    defaultValues={selectedExpense}
-    />
-    {isEditing && (
-      <View style={styles.deleteContainer}>
-      <IconButton 
-      icon="trash" 
-      color={GlobalStyles.colors.error500} 
-      size={36} 
-      onPress={deleteExpenseHandler} />
-      </View>
-    )}
-  </View>
-  );
+ return ( 
+ <View style={styles.container}>
+  <ExpenseForm 
+  submitButtonLabel={isEditing ? 'Update' : 'Add'} 
+  onSubmit={confirmHandler}
+  onCancel={cancelHandler}
+  defaultValues={selectedExpense}
+  />
+  {isEditing && (
+   <View style={styles.deleteContainer}>
+   <IconButton 
+   icon="trash" 
+   color={GlobalStyles.colors.error500} 
+   size={36} 
+   onPress={deleteExpenseHandler} />
+   </View>
+  )}
+ </View>
+ );
 }
 
 export default ManageExpense;
