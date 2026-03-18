@@ -7,7 +7,6 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png", 
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "bundleIdentifier": "com.cindearong.notifmobile",
       "supportsTablet": true
@@ -17,7 +16,8 @@
       //"googleServicesFile": "./google-services.json",
       "config": {
         "googleMaps": {
-          "apiKey": "AIzaSyAipxg8qHxTFQ-FIY_vcHUI66cSE8FLMeg"
+          //"apiKey": "AIzaSyAipxg8qHxTFQ-FIY_vcHUI66cSE8FLMeg"
+          "apiKey": "AIzaSyC8w8Yi6FHz2PyYAUJvc0RCpFMOY10N3P0"
         }
       },
       "adaptiveIcon": {

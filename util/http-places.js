@@ -1,7 +1,8 @@
 import { Place } from '../models/place';
 import { api } from './http';
 
-const GOOGLE_API_KEY = 'AIzaSyAipxg8qHxTFQ-FIY_vcHUI66cSE8FLMeg';
+//const GOOGLE_API_KEY = 'AIzaSyAipxg8qHxTFQ-FIY_vcHUI66cSE8FLMeg';
+const GOOGLE_API_KEY = 'AIzaSyC8w8Yi6FHz2PyYAUJvc0RCpFMOY10N3P0'
 
 // This is the URL to your Laravel storage folder
 const STORAGE_URL = 'https://expenses-tracker-api-laravel.benova.com.my/storage/';
