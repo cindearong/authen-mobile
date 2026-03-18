@@ -19,7 +19,7 @@ export async function startGoogleLogin() {
 
 export async function loginWithGoogle(idToken) {
   const response = await api.post(`/google-login`, {
-    firebase_token: idToken,
+    id_token: idToken,
   });
   
   const token = response.data.access_token;
